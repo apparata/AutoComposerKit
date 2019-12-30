@@ -5,9 +5,9 @@
 import Foundation
 import MIDISequencer
 
-class TrackMIDIfier {
+public class TrackMIDIfier {
     
-    static func makeSequence(track: Track) throws -> MIDISequence {
+    public static func makeSequence(track: Track) throws -> MIDISequence {
     
         let sequence = try MIDISequence(bpm: 120)
         

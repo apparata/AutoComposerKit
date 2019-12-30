@@ -15,7 +15,7 @@ enum Instrument: Int {
     case snareDrum = 5
 }
 
-class Track {
+public class Track {
     
     var orders: [PatternIndex] = []
     
@@ -34,7 +34,7 @@ class Track {
         orders.append(order)
     }
     
-    static func generate() -> Track {
+    public static func generate() -> Track {
         let track = Track()
         
         let baseNote = 12 + Int(Float.random(in: 50...(50 + 12 - 1)))
