@@ -1,0 +1,16 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "MIDISequencer",
+        "repositoryURL": "https://github.com/apparata/MIDISequencer.git",
+        "state": {
+          "branch": null,
+          "revision": "6a1d65244111f3ee9cd9ce7ce387fcd14d05b10f",
+          "version": "0.1.0"
+        }
+      }
+    ]
+  },
+  "version": 1
+}
