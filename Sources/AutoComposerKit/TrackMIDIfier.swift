@@ -7,7 +7,37 @@ import MIDISequencer
 
 public class TrackMIDIfier {
     
-    public static func makeSequence(track: Track) throws -> MIDISequence {
+    public typealias Note = UInt8
+    public typealias Program = UInt8
+    
+    public struct Configuration {
+        public let kickDrum: Note
+        public let snareDrum: Note
+        public let hiHatClosed: Note
+        public let hiHatOpen: Note
+        
+        public let drums: Program
+        public let bass: Program
+        public let lead: Program
+        
+        public init(kickDrum: Note = 36,
+                    snareDrum: Note = 38,
+                    hiHatClosed: Note = 42,
+                    hiHatOpen: Note = 46,
+                    drums: Program = 127,
+                    bass: Program = 24,
+                    lead: Program = 24) {
+            self.kickDrum = kickDrum
+            self.snareDrum = snareDrum
+            self.hiHatClosed = hiHatClosed
+            self.hiHatOpen = hiHatOpen
+            self.drums = drums
+            self.bass = bass
+            self.lead = lead
+        }
+    }
+    
+    public static func makeSequence(track: Track, configuration: Configuration = Configuration()) throws -> MIDISequence {
     
         let sequence = try MIDISequence(bpm: 120)
         
@@ -22,11 +52,11 @@ public class TrackMIDIfier {
             
             switch trackIndex {
             case 0, 1, 2:
-                track.add(program: 127, on: UInt8(trackIndex), at: 1.0)
+                track.add(program: configuration.drums, on: UInt8(trackIndex), at: 1.0)
             case 3: // Guitar
-                track.add(program: 24, on: UInt8(trackIndex), at: 1.0)
+                track.add(program: configuration.lead, on: UInt8(trackIndex), at: 1.0)
             case 4: // Bass
-                track.add(program: 24, on: UInt8(trackIndex), at: 1.0)
+                track.add(program: configuration.bass, on: UInt8(trackIndex), at: 1.0)
             default:
                 break
             }
@@ -58,13 +88,13 @@ public class TrackMIDIfier {
                         let midiNote: UInt8
                         switch channel[1] {
                         case Instrument.kickDrum.rawValue:
-                            midiNote = 36
+                            midiNote = configuration.kickDrum
                         case Instrument.snareDrum.rawValue:
-                            midiNote = 38
+                            midiNote = configuration.snareDrum
                         case Instrument.hihatClosed.rawValue:
-                            midiNote = 42
+                            midiNote = configuration.hiHatClosed
                         case Instrument.hihatOpen.rawValue:
-                            midiNote = 46
+                            midiNote = configuration.hiHatOpen
                         case Instrument.bass.rawValue:
                             midiNote = UInt8(12 + channel[0] - 24)
                         case Instrument.guitar.rawValue:
