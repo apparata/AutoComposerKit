@@ -12,7 +12,7 @@ let package = Package(
         .library(name: "AutoComposerKit", targets: ["AutoComposerKit"])
     ],
     dependencies: [
-        .package(url: "https://github.com/apparata/MIDISequencer.git", from: "0.2.0")
+        .package(url: "https://github.com/apparata/MIDISequencer.git", from: "0.3.0")
     ],
     targets: [
         .target(

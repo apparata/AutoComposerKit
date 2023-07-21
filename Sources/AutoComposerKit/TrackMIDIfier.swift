@@ -8,7 +8,6 @@ import MIDISequencer
 public class TrackMIDIfier {
     
     public typealias Note = UInt8
-    public typealias Program = UInt8
     
     public struct Configuration {
         public let kickDrum: Note
@@ -16,17 +15,17 @@ public class TrackMIDIfier {
         public let hiHatClosed: Note
         public let hiHatOpen: Note
         
-        public let drums: Program
-        public let bass: Program
-        public let lead: Program
+        public let drums: MIDIPreset
+        public let bass: MIDIPreset
+        public let lead: MIDIPreset
         
         public init(kickDrum: Note = 36,
                     snareDrum: Note = 38,
                     hiHatClosed: Note = 42,
                     hiHatOpen: Note = 46,
-                    drums: Program = 127,
-                    bass: Program = 24,
-                    lead: Program = 24) {
+                    drums: MIDIPreset = .init(bank: (msb: 0, lsb: 0), program: 127),
+                    bass: MIDIPreset = .init(bank: (msb: 0, lsb: 0), program: 24),
+                    lead: MIDIPreset = .init(bank: (msb: 0, lsb: 0), program: 24)) {
             self.kickDrum = kickDrum
             self.snareDrum = snareDrum
             self.hiHatClosed = hiHatClosed
@@ -52,11 +51,11 @@ public class TrackMIDIfier {
             
             switch trackIndex {
             case 0, 1, 2:
-                track.add(program: configuration.drums, on: UInt8(trackIndex), at: 1.0)
+                track.add(preset: configuration.drums, on: UInt8(trackIndex), at: 1.0)
             case 3: // Guitar
-                track.add(program: configuration.lead, on: UInt8(trackIndex), at: 1.0)
+                track.add(preset: configuration.lead, on: UInt8(trackIndex), at: 1.0)
             case 4: // Bass
-                track.add(program: configuration.bass, on: UInt8(trackIndex), at: 1.0)
+                track.add(preset: configuration.bass, on: UInt8(trackIndex), at: 1.0)
             default:
                 break
             }
