@@ -38,7 +38,7 @@ public class Track {
         let track = Track()
         
         let baseNote = 12 + Int(Float.random(in: 50...(50 + 12 - 1)))
-        let keyType: KeyType = Float.random(in: 0...1) < 0.6 ? .minor : .major
+        let keyType: KeyType = Float.random(in: 0...1) < 0.6 ? .naturalMinor : .major
         let patternSize = 128
         let blockSize = 32
         

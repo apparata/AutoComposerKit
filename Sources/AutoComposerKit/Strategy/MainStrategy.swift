@@ -26,29 +26,29 @@ class MainStrategy: Strategy {
         //self.rhythm *= (self.pattern_size // len(self.rhythm))
         
         let potentialKeys: [[(Int, KeyType)]]
-        if keyType == .minor {
+        if keyType == .naturalMinor {
             potentialKeys = [
-                [(0, .minor), (-4, .major), (5, .major), (-2, .major)],
-                [(0, .minor), (-2, .major), (-4, .major), (-5, .minor)]
+                [(0, .naturalMinor), (-4, .major), (5, .major), (-2, .major)],
+                [(0, .naturalMinor), (-2, .major), (-4, .major), (-5, .naturalMinor)]
             ]
         } else {
             potentialKeys = [
-                [(0, .major), (-5, .major), (-3, .minor), (5, .major)],
-                [(0, .major), (0, .major), (-7, .minor), (-5, .major)]
+                [(0, .major), (-5, .major), (-3, .naturalMinor), (5, .major)],
+                [(0, .major), (0, .major), (-7, .naturalMinor), (-5, .major)]
             ]
         }
         keySequence = potentialKeys.randomElement()!
         
         let potentialKeys2: [[(Int, KeyType)]]
-        if keyType == .minor {
+        if keyType == .naturalMinor {
             potentialKeys2 = [
-                [(3, .major), (0, .minor), (-4, .major), (-2, .major)],
-                [(-4, .major), (-2, .major), (0, .minor), (-2, .major)]
+                [(3, .major), (0, .naturalMinor), (-4, .major), (-2, .major)],
+                [(-4, .major), (-2, .major), (0, .naturalMinor), (-2, .major)]
             ]
         } else {
             potentialKeys2 = [
-                [(2, .minor), (0, .major), (-3, .minor), (0, .major)],
-                [(-3, .minor), (-5, .major), (-7, .major), (-5, .major)]
+                [(2, .naturalMinor), (0, .major), (-3, .naturalMinor), (0, .major)],
+                [(-3, .naturalMinor), (-5, .major), (-7, .major), (-5, .major)]
             ]
         }
         keySequence2 = potentialKeys2.randomElement()!
