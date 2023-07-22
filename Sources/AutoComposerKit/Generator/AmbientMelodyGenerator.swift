@@ -44,7 +44,7 @@ class AmbientMelodyGenerator: Generator {
         [2, -2, 0]
     ]
     
-    let beatRow: Int = Int(pow(2.0, Double.random(in: 2...3)))
+    let beatRow: Int
     var lq = 60
     var l_note = -1
     var motifQueue: [Int] = []
@@ -54,7 +54,13 @@ class AmbientMelodyGenerator: Generator {
         return 1
     }
     
-    func applyNotes(channel: Int, pattern: Pattern, rhythm: [Int], beatBegin: Int, beatLength: Int, rootKey: Key, keyChord: Key) {
+    init(randomizer: inout SeededRandomNumberGenerator) {
+        // swiftlint:disable:next force_unwrapping
+        let power = [2, 3].randomElement(using: &randomizer)!
+        beatRow = Int(pow(2.0, Double(power)))
+    }
+    
+    func applyNotes(channel: Int, pattern: Pattern, rhythm: [Int], beatBegin: Int, beatLength: Int, rootKey: Key, keyChord: Key, randomizer: inout SeededRandomNumberGenerator) {
         let beatEnd = beatBegin + beatLength
         
         let base = keyChord.baseNote
@@ -81,7 +87,7 @@ class AmbientMelodyGenerator: Generator {
             //var q = 60 // should this be lq??
             
             if motifQueue.count > 0 {
-                if stabbing || Float.random(in: 0...1) < 0.9 {
+                if stabbing || Float.random(in: 0...1, using: &randomizer) < 0.9 {
                     let note = motifQueue.removeFirst()
                     l_note = note
                     pattern.data[row][channel] = [note, Instrument.guitar.rawValue, 255, 0, 0]
@@ -91,7 +97,7 @@ class AmbientMelodyGenerator: Generator {
                         lq = note
                     }
                     
-                    if Float.random(in: 0...1) < 0.2 || stabbing {
+                    if Float.random(in: 0...1, using: &randomizer) < 0.2 || stabbing {
                         row += beatRow / 2
                         stabbing = !stabbing
                     } else {
@@ -100,9 +106,9 @@ class AmbientMelodyGenerator: Generator {
                 } else {
                     row += beatRow
                 }
-            } else if (row - beatBegin >= 2 * beatRow) && (Float.random(in: 0...1) < 0.3) {
+            } else if (row - beatBegin >= 2 * beatRow) && (Float.random(in: 0...1, using: &randomizer) < 0.3) {
                 let upperLimit: Int = min(10, row / (beatRow / 2))
-                let backStep = Int.random(in: 3...upperLimit) * (beatRow / 2)
+                let backStep = Int.random(in: 3...upperLimit, using: &randomizer) * (beatRow / 2)
                 
                 for _ in 0..<backStep {
                     if row - beatBegin >= beatLength {
@@ -127,7 +133,8 @@ class AmbientMelodyGenerator: Generator {
                 while true {
                     var kk = false
                     while true {
-                        let rb_index = noteQueue.randomElement()!
+                        // swiftlint:disable:next force_unwrapping
+                        let rb_index = noteQueue.randomElement(using: &randomizer)!
                         rb_note = pattern.data[rb_index][channel][0]
                         
                         if l_note != -1 && abs(rb_note - l_note) > 12 {
@@ -140,10 +147,11 @@ class AmbientMelodyGenerator: Generator {
                     motif = []
                     
                     for _ in 0..<20 {
-                        motif = motifProspects.randomElement()!
+                        // swiftlint:disable:next force_unwrapping
+                        motif = motifProspects.randomElement(using: &randomizer)!
                         
                         let threshold = l_note != -1 ? (8.0 + Double(l_note - base)) / 8.0 : 0.5
-                        let down: Bool = Double.random(in: 0...1) < threshold
+                        let down: Bool = Double.random(in: 0...1, using: &randomizer) < threshold
                         
                         if down {
                             motif = motif.map {

@@ -6,13 +6,17 @@ import Foundation
 
 class MainStrategy: Strategy {
     
-    var speed: Int = Int(pow(2.0, Double([2, 3].randomElement()!)))
+    let speed: Int
     var patternIndex: Int = 0
     let keySequence: [(Int, KeyType)]
     let keySequence2: [(Int, KeyType)]
     let rhythm: [Int]
     
-    required init(baseNote: Int, keyType: KeyType, patternSize: Int, blockSize: Int) {
+    required init(baseNote: Int, keyType: KeyType, patternSize: Int, blockSize: Int, randomizer: inout SeededRandomNumberGenerator) {
+       
+        // swiftlint:disable:next force_unwrapping
+        let power = [2, 3].randomElement(using: &randomizer)!
+        speed = Int(pow(2.0, Double(power)))
         
         let rhythmCycle: [Int] = [3] + Array<Int>(repeating: 0, count: speed - 1) + [1] + Array<Int>(repeating: 0, count: speed - 1)
         var rhythm: [Int] = []
@@ -37,7 +41,8 @@ class MainStrategy: Strategy {
                 [(0, .major), (0, .major), (-7, .naturalMinor), (-5, .major)]
             ]
         }
-        keySequence = potentialKeys.randomElement()!
+        // swiftlint:disable:next force_unwrapping
+        keySequence = potentialKeys.randomElement(using: &randomizer)!
         
         let potentialKeys2: [[(Int, KeyType)]]
         if keyType == .naturalMinor {
@@ -51,12 +56,13 @@ class MainStrategy: Strategy {
                 [(-3, .naturalMinor), (-5, .major), (-7, .major), (-5, .major)]
             ]
         }
-        keySequence2 = potentialKeys2.randomElement()!
+        // swiftlint:disable:next force_unwrapping
+        keySequence2 = potentialKeys2.randomElement(using: &randomizer)!
         
-        super.init(baseNote: baseNote, keyType: keyType, patternSize: patternSize, blockSize: blockSize)
+        super.init(baseNote: baseNote, keyType: keyType, patternSize: patternSize, blockSize: blockSize, randomizer: &randomizer)
     }
     
-    func generatePattern() -> Pattern {
+    func generatePattern(randomizer: inout SeededRandomNumberGenerator) -> Pattern {
         let pattern = Pattern(rowCount: patternSize)
         
         var keySequence = (patternIndex % 8 >= 4) ? keySequence2 : self.keySequence
@@ -65,7 +71,15 @@ class MainStrategy: Strategy {
             let (key, keyType) = keySequence.removeFirst()
             let keyChord = Key(baseNote: self.key.baseNote + key, keyType: keyType)
             for (channel, generator) in generators {
-                generator.applyNotes(channel: channel, pattern: pattern, rhythm: rhythm, beatBegin: i, beatLength: blockSize, rootKey: self.key, keyChord: keyChord)
+                generator.applyNotes(
+                    channel: channel,
+                    pattern: pattern,
+                    rhythm: rhythm,
+                    beatBegin: i,
+                    beatLength: blockSize,
+                    rootKey: self.key,
+                    keyChord: keyChord,
+                    randomizer: &randomizer)
             }
             
             keySequence.append((key, keyType))

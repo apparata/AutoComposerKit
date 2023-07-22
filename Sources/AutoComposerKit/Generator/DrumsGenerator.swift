@@ -6,13 +6,19 @@ import Foundation
 
 class DrumsGenerator: Generator {
     
-    let beatRow: Int = Int(pow(2.0, Double([1, 2].randomElement()!)))
+    let beatRow: Int
     
     var size: Int {
         return 3
     }
     
-    func applyNotes(channel: Int, pattern: Pattern, rhythm: [Int], beatBegin: Int, beatLength: Int, rootKey: Key, keyChord: Key) {
+    init(randomizer: inout SeededRandomNumberGenerator) {
+        // swiftlint:disable:next force_unwrapping
+        let power = [1, 2].randomElement(using: &randomizer)!
+        beatRow = Int(pow(2.0, Double(power)))
+    }
+    
+    func applyNotes(channel: Int, pattern: Pattern, rhythm: [Int], beatBegin: Int, beatLength: Int, rootKey: Key, keyChord: Key, randomizer: inout SeededRandomNumberGenerator) {
         let beatEnd = beatBegin + beatLength
         
         for row in stride(from: beatBegin, to: beatEnd, by: beatRow) {
@@ -32,7 +38,7 @@ class DrumsGenerator: Generator {
                     volume = 8
                 }
                 
-                if Float.random(in: 0...1) < 0.2 {
+                if Float.random(in: 0...1, using: &randomizer) < 0.2 {
                     instrument = Instrument.hihatOpen
                 }
             }
@@ -41,7 +47,7 @@ class DrumsGenerator: Generator {
         }
         
         for row in stride(from: beatBegin, to: beatEnd, by: 2) {
-            if (Float.random(in: 0...1) < 0.1) && (rhythm[row] & 1 == 0) {
+            if (Float.random(in: 0...1, using: &randomizer) < 0.1) && (rhythm[row] & 1 == 0) {
                 pattern.data[row][channel + 1] = [60, Instrument.kickDrum.rawValue, 255, 0, 0]
             }
         }
@@ -52,7 +58,7 @@ class DrumsGenerator: Generator {
                 if didKick {
                     pattern.data[row][channel + 2] = [60, Instrument.snareDrum.rawValue, 255, 0, 0]
                 } else {
-                    if Float.random(in: 0...1) < 0.1 {
+                    if Float.random(in: 0...1, using: &randomizer) < 0.1 {
                         pattern.data[row + 2][channel + 1] = [60, Instrument.kickDrum.rawValue, 255, 0, 0]
                     } else {
                         pattern.data[row][channel + 1] = [60, Instrument.kickDrum.rawValue, 255, 0, 0]

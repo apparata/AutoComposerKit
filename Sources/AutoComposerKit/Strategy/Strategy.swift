@@ -14,7 +14,7 @@ class Strategy {
     let patternSize: Int
     let blockSize: Int
     
-    required init(baseNote: Int, keyType: KeyType, patternSize: Int, blockSize: Int) {
+    required init(baseNote: Int, keyType: KeyType, patternSize: Int, blockSize: Int, randomizer: inout SeededRandomNumberGenerator) {
         key = Key(baseNote: baseNote, keyType: keyType)
         usedChannelCount = 0
         generators = []

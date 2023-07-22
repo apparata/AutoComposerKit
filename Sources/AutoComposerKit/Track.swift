@@ -34,23 +34,25 @@ public class Track {
         orders.append(order)
     }
     
-    public static func generate() -> Track {
+    public static func generate(seed: Int = Int.random(in: 0...0xFFFFFF)) -> Track {
         let track = Track()
         
-        let baseNote = 12 + Int(Float.random(in: 50...(50 + 12 - 1)))
-        let keyType: KeyType = Float.random(in: 0...1) < 0.6 ? .naturalMinor : .major
+        var randomizer = SeededRandomNumberGenerator(seed: seed)
+        
+        let baseNote = 12 + Int(Float.random(in: 50...(50 + 12 - 1), using: &randomizer))
+        let keyType: KeyType = Float.random(in: 0...1, using: &randomizer) < 0.6 ? .naturalMinor : .major
         let patternSize = 128
         let blockSize = 32
         
-        let strategy = MainStrategy(baseNote: baseNote, keyType: keyType, patternSize: patternSize, blockSize: blockSize)
-        strategy.add(generator: DrumsGenerator())
-        strategy.add(generator: AmbientMelodyGenerator())
+        let strategy = MainStrategy(baseNote: baseNote, keyType: keyType, patternSize: patternSize, blockSize: blockSize, randomizer: &randomizer)
+        strategy.add(generator: DrumsGenerator(randomizer: &randomizer))
+        strategy.add(generator: AmbientMelodyGenerator(randomizer: &randomizer))
         strategy.add(generator: BassGenerator())
         
         let patternCount = 6
         
         for _ in 0..<patternCount {
-            let pattern = strategy.generatePattern()
+            let pattern = strategy.generatePattern(randomizer: &randomizer)
             let patternIndex = track.add(pattern: pattern)
             track.add(order: patternIndex)
         }
