@@ -1,16 +1,14 @@
 {
-  "object": {
-    "pins": [
-      {
-        "package": "MIDISequencer",
-        "repositoryURL": "https://github.com/apparata/MIDISequencer.git",
-        "state": {
-          "branch": null,
-          "revision": "392c8357b3190819ad94b9f6aab381a61da34811",
-          "version": "0.3.0"
-        }
+  "pins" : [
+    {
+      "identity" : "midisequencer",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apparata/MIDISequencer.git",
+      "state" : {
+        "revision" : "dae8827135824d767b3b7a175b3364a205765070",
+        "version" : "1.0.0"
       }
-    ]
-  },
-  "version": 1
+    }
+  ],
+  "version" : 2
 }

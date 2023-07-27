@@ -1,46 +1,45 @@
 import Foundation
 
-class MainStrategy: Strategy {
-    
+class LegacyStrategy: Strategy {
+
     // Input parameters
     private let key: Key
     private let patternSize: Int
     private let blockSize: Int
-    private let generators: [[ChannelID]: Generator]
-
+    private var generators: [ChannelIDGroup: Generator]
+    
     // Generated values
     private let speed: Int
     private let rhythm: Rhythm
     private let keySequence: [Key]
     private let keySequence2: [Key]
-
+    
     required init(
         baseNote: Int,
         keyType: KeyType,
         patternSize: Int,
         blockSize: Int,
         randomizer: inout SeededRandomNumberGenerator,
-        generators: [[ChannelID]: Generator]
+        generators: [ChannelIDGroup: Generator]
     ) {
-
         // Input parameters
         
         self.key = Key(baseNote, keyType)
         self.patternSize = patternSize
         self.blockSize = blockSize
         self.generators = generators
-
-        // Generated values
         
+        // Generated values
+       
         self.speed = Self.generateSpeed(&randomizer)
         
         self.rhythm = Self.generateRhythm(
             speed: speed,
             patternSize: patternSize,
             &randomizer)
-
-        self.keySequence = Self.generateKeySequence(&randomizer)
-        self.keySequence2 = Self.generateKeySequence(&randomizer)
+                
+        self.keySequence = Self.generateKeySequence(keyType: keyType, &randomizer)
+        self.keySequence2 = Self.generateKeySequence2(keyType: keyType, &randomizer)
     }
     
     private static func generateSpeed(_ randomizer: inout SeededRandomNumberGenerator) -> Int {
@@ -60,48 +59,51 @@ class MainStrategy: Strategy {
         return Rhythm(rows: rhythm)
     }
     
-    private static func generateKeySequence(_ randomizer: inout SeededRandomNumberGenerator) -> [Key] {
-                
-        let keySequence: [Key] = [
-            randomKey(&randomizer),
-            randomKey(&randomizer),
-            randomKey(&randomizer),
-            randomKey(&randomizer)
-        ]
-
+    private static func generateKeySequence(keyType: KeyType, _ randomizer: inout SeededRandomNumberGenerator) -> [Key] {
+        let potentialKeys: [[Key]]
+        if keyType == .naturalMinor {
+            potentialKeys = [
+                [Key(0, .naturalMinor), Key(-4, .major), Key(5, .major), Key(-2, .major)],
+                [Key(0, .naturalMinor), Key(-2, .major), Key(-4, .major), Key(-5, .naturalMinor)]
+            ]
+        } else {
+            potentialKeys = [
+                [Key(0, .major), Key(-5, .major), Key(-3, .naturalMinor), Key(5, .major)],
+                [Key(0, .major), Key(0, .major), Key(-7, .naturalMinor), Key(-5, .major)]
+            ]
+        }
+        // swiftlint:disable:next force_unwrapping
+        let keySequence = potentialKeys.randomElement(using: &randomizer)!
         return keySequence
     }
     
-    private static func randomKey(_ randomizer: inout SeededRandomNumberGenerator) -> Key {
-        // swiftlint:disable force_unwrapping
-        let baseNote = [
-            0, -4, 5, -2, 0, -2, -4, -5,
-            0, -5, -3, 5, 0, 0, -7, -5,
-            3, 0, -4, -2, -4, -2, 0, -2,
-            2, 0, -3, 0, -3, -5, -7, -5
-        ].randomElement(using: &randomizer)!
-        // swiftlint:enable force_unwrapping
-
-        // swiftlint:disable force_unwrapping
-        let keyType: KeyType = [
-            .harmonicMinor, .naturalMinor, .melodicMinor,
-            .major, .pentatonicMinor, .pentatonicMajor
-        ].randomElement(using: &randomizer)!
-        // swiftlint:enable force_unwrapping
-
-        return Key(baseNote, keyType)
+    private static func generateKeySequence2(keyType: KeyType, _ randomizer: inout SeededRandomNumberGenerator) -> [Key] {
+        let potentialKeys2: [[Key]]
+        if keyType == .naturalMinor {
+            potentialKeys2 = [
+                [Key(3, .major), Key(0, .naturalMinor), Key(-4, .major), Key(-2, .major)],
+                [Key(-4, .major), Key(-2, .major), Key(0, .naturalMinor), Key(-2, .major)]
+            ]
+        } else {
+            potentialKeys2 = [
+                [Key(2, .naturalMinor), Key(0, .major), Key(-3, .naturalMinor), Key(0, .major)],
+                [Key(-3, .naturalMinor), Key(-5, .major), Key(-7, .major), Key(-5, .major)]
+            ]
+        }
+        // swiftlint:disable:next force_unwrapping
+        let keySequence2 = potentialKeys2.randomElement(using: &randomizer)!
+        return keySequence2
     }
-        
+    
     func generatePattern(
         id patternID: PatternID,
         channelIDGroups: Set<ChannelIDGroup>,
         _ randomizer: inout SeededRandomNumberGenerator
     ) -> Pattern {
-        
         let pattern = Pattern(rowCount: patternSize, channelIDGroups: channelIDGroups)
         
         var keySequence = (patternID % 8 >= 4) ? keySequence2 : self.keySequence
-
+        
         for i in stride(from: 0, to: patternSize, by: blockSize) {
             let key = keySequence.removeFirst()
             let keyChord = Key(self.key.baseNote + key.baseNote, key.keyType)
@@ -121,7 +123,7 @@ class MainStrategy: Strategy {
             
             keySequence.append(key)
         }
-
+        
         return pattern
     }
 }

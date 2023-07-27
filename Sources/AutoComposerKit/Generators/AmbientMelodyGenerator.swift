@@ -1,10 +1,6 @@
-//
-//  Copyright © 2016 Apparata AB. All rights reserved.
-//
-
 import Foundation
 
-class AmbientMelodyGenerator: Generator {
+class AmbientGenerator: Generator {
     
     private let motifProspects: [[Int]] = [
         // 1-steps
@@ -50,17 +46,29 @@ class AmbientMelodyGenerator: Generator {
     var motifQueue: [Int] = []
     var noteQueue: [Int] = []
     
-    var size: Int {
+    var channelCount: Int {
         return 1
     }
     
-    init(randomizer: inout SeededRandomNumberGenerator) {
+    init(_ randomizer: inout SeededRandomNumberGenerator) {
         // swiftlint:disable:next force_unwrapping
         let power = [2, 3].randomElement(using: &randomizer)!
         beatRow = Int(pow(2.0, Double(power)))
     }
     
-    func applyNotes(channel: Int, pattern: Pattern, rhythm: [Int], beatBegin: Int, beatLength: Int, rootKey: Key, keyChord: Key, randomizer: inout SeededRandomNumberGenerator) {
+    func applyNotes(
+        channels: [ChannelID],
+        pattern: Pattern,
+        rhythm: Rhythm,
+        beatBegin: Int,
+        beatLength: Int,
+        rootKey: Key,
+        keyChord: Key,
+        _ randomizer: inout SeededRandomNumberGenerator
+    ) {
+        precondition(channelCount == channels.count)
+        let channel = channels[0]
+        
         let beatEnd = beatBegin + beatLength
         
         let base = keyChord.baseNote
@@ -71,14 +79,15 @@ class AmbientMelodyGenerator: Generator {
             noteQueue = []
         }
         
-        pattern.data[beatBegin][channel] = [lq, Instrument.guitar.rawValue, 255, 0, 0]
+        let command = Command(command: NoteCommand(note: lq))
+        pattern.rows[beatBegin].setCommand(command, on: channel)
         noteQueue.append(beatBegin)
         
         var stabbing = false
         
         var row = beatBegin
         while row < beatEnd {
-            if pattern.data[row][channel][0] != 253 {
+            if pattern.rows[row].channel(channel).command.isNotIgnore {
                 noteQueue.append(row)
                 row += beatRow
                 continue
@@ -90,7 +99,8 @@ class AmbientMelodyGenerator: Generator {
                 if stabbing || Float.random(in: 0...1, using: &randomizer) < 0.9 {
                     let note = motifQueue.removeFirst()
                     l_note = note
-                    pattern.data[row][channel] = [note, Instrument.guitar.rawValue, 255, 0, 0]
+                    let command = Command(command: NoteCommand(note: note))
+                    pattern.rows[row].setCommand(command, on: channel)
                     noteQueue.append(row)
                     
                     if motifQueue.isEmpty {
@@ -114,11 +124,11 @@ class AmbientMelodyGenerator: Generator {
                     if row - beatBegin >= beatLength {
                         break
                     }
-                    pattern.data[row][channel] = pattern.data[row - backStep][channel]
-                    let note = pattern.data[row][channel][0]
-                    if note != 253 {
-                        l_note = note
-                        lq = note
+                    pattern.rows[row].setCommand(pattern.rows[row - backStep].channel(channel), on: channel)
+                    let command = pattern.rows[row].channel(channel).command
+                    if command.isNotIgnore {
+                        l_note = command.value
+                        lq = command.value
                     }
                     row += 1
                 }
@@ -135,7 +145,7 @@ class AmbientMelodyGenerator: Generator {
                     while true {
                         // swiftlint:disable:next force_unwrapping
                         let rb_index = noteQueue.randomElement(using: &randomizer)!
-                        rb_note = pattern.data[rb_index][channel][0]
+                        rb_note = pattern.rows[rb_index].channel(channel).command.value
                         
                         if l_note != -1 && abs(rb_note - l_note) > 12 {
                             continue

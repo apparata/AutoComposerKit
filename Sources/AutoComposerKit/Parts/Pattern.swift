@@ -1,10 +1,18 @@
-//
-//  Copyright © 2016 Apparata AB. All rights reserved.
-//
-
 import Foundation
 
-class Pattern {
+/// Pattern contains rows, where each row has a command per channel.
+///
+/// ```
+/// Track
+///   ├ Order ┄┄┄┐
+///   │          ┊
+///   └ Pattern <┘
+///     │
+///     └ Row
+///       │
+///       └ Command
+/// ```
+public class Pattern {
     
     /// X rows, 5 columns, each entry:
     /// - note = 253 (0xFD)
@@ -12,15 +20,26 @@ class Pattern {
     /// - volume = 255 (0xFF)
     /// - effect type = 0
     /// - effect parameter = 0
+        
+    var rows: [Row]
     
-    var data: [[[Int]]]
-    
-    init(rowCount: Int) {
-        let defaultEntry = [253, 0, 255, 0, 0]
-        let defaultRow = Array<[Int]>(repeating: defaultEntry, count: 5)
-        data = []
+    init(rowCount: Int, channelIDGroups: Set<ChannelIDGroup>) {
+        let defaultChannelEntry = Command(command: .ignore)
+
+        var channelEntries: [ChannelID: Command] = [:]
+        
+        for channelIDGroup in channelIDGroups {
+            for channelID in channelIDGroup {
+                channelEntries[channelID] = defaultChannelEntry
+            }
+        }
+        
+        let defaultRow = Row(channels: channelEntries)
+        
+        rows = []
+        
         for _ in 0..<rowCount {
-            data.append(defaultRow)
+            rows.append(defaultRow)
         }
     }
 }

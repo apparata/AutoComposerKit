@@ -1,42 +1,30 @@
-//
-//  Copyright © 2016 Apparata AB. All rights reserved.
-//
-
 import Foundation
 
-typealias PatternIndex = Int
+public typealias PatternID = Int
 
-enum Instrument: Int {
-    case guitar = 0
-    case bass = 1
-    case kickDrum = 2
-    case hihatClosed = 3
-    case hihatOpen = 4
-    case snareDrum = 5
-}
-
+/// Generated music track
 public class Track {
     
-    var orders: [PatternIndex] = []
+    /// The generated note patterns.
+    let patterns: [PatternID: Pattern]
     
-    var patterns: [Pattern] = []
+    /// The order in which to play the patterns.
+    let order: [PatternID]
+
+    /// The channels to generate patterns for.
+    public let channelGroups: [ChannelIDGroup: ChannelGroup]
+
+    public let bpm: Int
     
-    private init() {
-        
+    private init(bpm: Int, patterns: [PatternID: Pattern], order: [PatternID], channelGroups: [ChannelIDGroup: ChannelGroup]) {
+        self.patterns = patterns
+        self.order = order
+        self.channelGroups = channelGroups
+        self.bpm = bpm
     }
     
-    func add(pattern: Pattern) -> PatternIndex {
-        patterns.append(pattern)
-        return patterns.count - 1
-    }
-    
-    func add(order: PatternIndex) {
-        orders.append(order)
-    }
-    
-    public static func generate(seed: Int = Int.random(in: 0...0xFFFFFF)) -> Track {
-        let track = Track()
-        
+    /// Generates a track
+    public static func generate(seed: Int = Int.random(in: 0...0xFFFFFF), specification: TrackSpecification = .default) -> Track {
         var randomizer = SeededRandomNumberGenerator(seed: seed)
         
         let baseNote = 12 + Int(Float.random(in: 50...(50 + 12 - 1), using: &randomizer))
@@ -44,20 +32,39 @@ public class Track {
         let patternSize = 128
         let blockSize = 32
         
-        let strategy = MainStrategy(baseNote: baseNote, keyType: keyType, patternSize: patternSize, blockSize: blockSize, randomizer: &randomizer)
-        strategy.add(generator: DrumsGenerator(randomizer: &randomizer))
-        strategy.add(generator: AmbientMelodyGenerator(randomizer: &randomizer))
-        strategy.add(generator: BassGenerator())
+        let generators: [ChannelIDGroup: any Generator] = Dictionary(
+            uniqueKeysWithValues: specification.channelGroups.map { channelGroup in
+            switch channelGroup.type {
+            case .drums: return (channelGroup.ids, DrumsGenerator(&randomizer))
+            case .bass: return (channelGroup.ids, BassGenerator())
+            case .ambient: return (channelGroup.ids, AmbientGenerator(&randomizer))
+            }
+        })
         
-        let patternCount = 6
+        let strategy = MainStrategy(
+            baseNote: baseNote,
+            keyType: keyType,
+            patternSize: patternSize,
+            blockSize: blockSize,
+            randomizer: &randomizer,
+            generators: generators)
         
-        for _ in 0..<patternCount {
-            let pattern = strategy.generatePattern(randomizer: &randomizer)
-            let patternIndex = track.add(pattern: pattern)
-            track.add(order: patternIndex)
+        let state = PatternGenerator(strategy: strategy)
+        for (patternID, channelIDGroups) in specification.patterns {
+            state.generatePattern(id: patternID, channelIDGroups: channelIDGroups, &randomizer)
         }
+        
+        var channelGroups: [ChannelIDGroup: ChannelGroup] = [:]
+        for channelGroup in specification.channelGroups {
+            channelGroups[channelGroup.ids] = channelGroup
+        }
+                
+        let track = Track(
+            bpm: specification.bpm,
+            patterns: state.patterns,
+            order: specification.order,
+            channelGroups: channelGroups)
         
         return track
     }
-    
 }

@@ -1,7 +1,3 @@
-//
-//  Copyright © 2016 Apparata AB. All rights reserved.
-//
-
 import Foundation
 
 enum KeyType {
@@ -13,7 +9,7 @@ enum KeyType {
     case pentatonicMajor
 }
 
-class Key {
+public class Key {
         
     private static func scaleToMask(_ scale: String) -> [Bool] {
         let notes = scale.components(separatedBy: .whitespaces)
@@ -53,7 +49,7 @@ class Key {
     
     let keyType: KeyType
     
-    init(baseNote: Int, keyType: KeyType) {
+    init(_ baseNote: Int, _ keyType: KeyType) {
         self.baseNote = baseNote
         self.keyType = keyType
     }
