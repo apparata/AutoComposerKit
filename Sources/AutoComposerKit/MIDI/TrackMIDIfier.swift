@@ -6,11 +6,14 @@ public typealias InstrumentNote = UInt8
 public struct MIDIInstrument {
     public let preset: MIDIPreset
     
+    public let octaveOffset: Int
+    
     /// Only used for one-note instruments such as drums.
     public let note: InstrumentNote?
     
-    public init(preset: MIDIPreset, note: InstrumentNote? = nil) {
+    public init(preset: MIDIPreset, octaveOffset: Int = 0, note: InstrumentNote? = nil) {
         self.preset = preset
+        self.octaveOffset = octaveOffset
         self.note = note
     }
 }
@@ -78,9 +81,10 @@ public class TrackMIDIfier {
                 }
                 
                 for (channelID, command) in row.channels {
-                                        
+                    
                     if command.command.isNotIgnore {
-                        print("Pattern \(i): note \(command.command.value) vol \(command.volume)")
+                        
+                        print("Pattern \(i): id \(channelID) note \(command.command.value) vol \(command.volume)")
                           
                         let instrument = configuration.instrument(for: channelID)
 
@@ -88,8 +92,7 @@ public class TrackMIDIfier {
                         if let note = instrument.note {
                             midiNote = note
                         } else {
-                            // I guess we are lowering one octave?
-                            midiNote = UInt8(command.command.value - 12)
+                            midiNote = UInt8(command.command.value + instrument.octaveOffset * 12)
                         }
                         
                         // swiftlint:disable:next force_unwrapping

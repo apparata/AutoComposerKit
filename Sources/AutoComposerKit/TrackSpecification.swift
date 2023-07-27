@@ -9,13 +9,13 @@ public typealias ChannelIDGroup = [ChannelID]
 public struct TrackSpecification {
     public let bpm: Int
     public let channelGroups: [ChannelGroup]
-    public let patterns: [PatternID: Set<ChannelIDGroup>]
+    public let patterns: [PatternID: [ChannelIDGroup]]
     public let order: [PatternID]
     
     public init(
         bpm: Int,
         channelGroups: [ChannelIDGroup: ChannelType],
-        patterns: [PatternID: Set<ChannelIDGroup>],
+        patterns: [PatternID: [ChannelIDGroup]],
         order: [PatternID]
     ) throws {
         self.bpm = bpm

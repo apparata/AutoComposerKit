@@ -23,23 +23,21 @@ public class Pattern {
         
     var rows: [Row]
     
-    init(rowCount: Int, channelIDGroups: Set<ChannelIDGroup>) {
-        let defaultChannelEntry = Command(command: .ignore)
-
+    init(rowCount: Int, channelIDGroups: [ChannelIDGroup]) {
         var channelEntries: [ChannelID: Command] = [:]
         
         for channelIDGroup in channelIDGroups {
             for channelID in channelIDGroup {
-                channelEntries[channelID] = defaultChannelEntry
+                // Default command
+                channelEntries[channelID] = Command(command: .ignore)
             }
         }
-        
-        let defaultRow = Row(channels: channelEntries)
         
         rows = []
         
         for _ in 0..<rowCount {
-            rows.append(defaultRow)
+            // Default row
+            rows.append(Row(channels: channelEntries))
         }
     }
 }

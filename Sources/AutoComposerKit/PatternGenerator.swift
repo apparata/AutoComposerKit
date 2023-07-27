@@ -11,7 +11,7 @@ class PatternGenerator {
         self.patterns = [:]
     }
     
-    func generatePattern(id: PatternID, channelIDGroups: Set<ChannelIDGroup>, _ randomizer: inout SeededRandomNumberGenerator) {
+    func generatePattern(id: PatternID, channelIDGroups: [ChannelIDGroup], _ randomizer: inout RandomNumberGenerator) {
         let pattern = strategy.generatePattern(id: id, channelIDGroups: channelIDGroups, &randomizer)
         patterns[id] = pattern
     }

@@ -19,7 +19,7 @@ class LegacyStrategy: Strategy {
         keyType: KeyType,
         patternSize: Int,
         blockSize: Int,
-        randomizer: inout SeededRandomNumberGenerator,
+        randomizer: inout RandomNumberGenerator,
         generators: [ChannelIDGroup: Generator]
     ) {
         // Input parameters
@@ -42,14 +42,14 @@ class LegacyStrategy: Strategy {
         self.keySequence2 = Self.generateKeySequence2(keyType: keyType, &randomizer)
     }
     
-    private static func generateSpeed(_ randomizer: inout SeededRandomNumberGenerator) -> Int {
+    private static func generateSpeed(_ randomizer: inout RandomNumberGenerator) -> Int {
         // swiftlint:disable:next force_unwrapping
         let power = [2, 3].randomElement(using: &randomizer)!
         let speed = Int(pow(2.0, Double(power)))
         return speed
     }
     
-    private static func generateRhythm(speed: Int, patternSize: Int, _ randomizer: inout SeededRandomNumberGenerator) -> Rhythm {
+    private static func generateRhythm(speed: Int, patternSize: Int, _ randomizer: inout RandomNumberGenerator) -> Rhythm {
         let rhythmCycle: [Int] = [3] + Array<Int>(repeating: 0, count: speed - 1) + [1] + Array<Int>(repeating: 0, count: speed - 1)
         var rhythm: [Int] = []
         let cycleCount = patternSize / rhythmCycle.count
@@ -59,7 +59,7 @@ class LegacyStrategy: Strategy {
         return Rhythm(rows: rhythm)
     }
     
-    private static func generateKeySequence(keyType: KeyType, _ randomizer: inout SeededRandomNumberGenerator) -> [Key] {
+    private static func generateKeySequence(keyType: KeyType, _ randomizer: inout RandomNumberGenerator) -> [Key] {
         let potentialKeys: [[Key]]
         if keyType == .naturalMinor {
             potentialKeys = [
@@ -77,7 +77,7 @@ class LegacyStrategy: Strategy {
         return keySequence
     }
     
-    private static func generateKeySequence2(keyType: KeyType, _ randomizer: inout SeededRandomNumberGenerator) -> [Key] {
+    private static func generateKeySequence2(keyType: KeyType, _ randomizer: inout RandomNumberGenerator) -> [Key] {
         let potentialKeys2: [[Key]]
         if keyType == .naturalMinor {
             potentialKeys2 = [
@@ -97,8 +97,8 @@ class LegacyStrategy: Strategy {
     
     func generatePattern(
         id patternID: PatternID,
-        channelIDGroups: Set<ChannelIDGroup>,
-        _ randomizer: inout SeededRandomNumberGenerator
+        channelIDGroups: [ChannelIDGroup],
+        _ randomizer: inout RandomNumberGenerator
     ) -> Pattern {
         let pattern = Pattern(rowCount: patternSize, channelIDGroups: channelIDGroups)
         

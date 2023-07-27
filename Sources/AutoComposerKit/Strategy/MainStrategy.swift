@@ -19,7 +19,7 @@ class MainStrategy: Strategy {
         keyType: KeyType,
         patternSize: Int,
         blockSize: Int,
-        randomizer: inout SeededRandomNumberGenerator,
+        randomizer: inout RandomNumberGenerator,
         generators: [[ChannelID]: Generator]
     ) {
 
@@ -43,14 +43,14 @@ class MainStrategy: Strategy {
         self.keySequence2 = Self.generateKeySequence(&randomizer)
     }
     
-    private static func generateSpeed(_ randomizer: inout SeededRandomNumberGenerator) -> Int {
+    private static func generateSpeed(_ randomizer: inout RandomNumberGenerator) -> Int {
         // swiftlint:disable:next force_unwrapping
         let power = [2, 3].randomElement(using: &randomizer)!
         let speed = Int(pow(2.0, Double(power)))
         return speed
     }
     
-    private static func generateRhythm(speed: Int, patternSize: Int, _ randomizer: inout SeededRandomNumberGenerator) -> Rhythm {
+    private static func generateRhythm(speed: Int, patternSize: Int, _ randomizer: inout RandomNumberGenerator) -> Rhythm {
         let rhythmCycle: [Int] = [3] + Array<Int>(repeating: 0, count: speed - 1) + [1] + Array<Int>(repeating: 0, count: speed - 1)
         var rhythm: [Int] = []
         let cycleCount = patternSize / rhythmCycle.count
@@ -60,7 +60,7 @@ class MainStrategy: Strategy {
         return Rhythm(rows: rhythm)
     }
     
-    private static func generateKeySequence(_ randomizer: inout SeededRandomNumberGenerator) -> [Key] {
+    private static func generateKeySequence(_ randomizer: inout RandomNumberGenerator) -> [Key] {
                 
         let keySequence: [Key] = [
             randomKey(&randomizer),
@@ -72,7 +72,7 @@ class MainStrategy: Strategy {
         return keySequence
     }
     
-    private static func randomKey(_ randomizer: inout SeededRandomNumberGenerator) -> Key {
+    private static func randomKey(_ randomizer: inout RandomNumberGenerator) -> Key {
         // swiftlint:disable force_unwrapping
         let baseNote = [
             0, -4, 5, -2, 0, -2, -4, -5,
@@ -94,8 +94,8 @@ class MainStrategy: Strategy {
         
     func generatePattern(
         id patternID: PatternID,
-        channelIDGroups: Set<ChannelIDGroup>,
-        _ randomizer: inout SeededRandomNumberGenerator
+        channelIDGroups: [ChannelIDGroup],
+        _ randomizer: inout RandomNumberGenerator
     ) -> Pattern {
         
         let pattern = Pattern(rowCount: patternSize, channelIDGroups: channelIDGroups)

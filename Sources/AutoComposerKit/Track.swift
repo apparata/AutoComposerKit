@@ -24,8 +24,21 @@ public class Track {
     }
     
     /// Generates a track
+    public static func generate(specification: TrackSpecification = .default) -> Track {
+        var randomizer: RandomNumberGenerator = SystemRandomNumberGenerator()
+        let track = generate(randomizer: &randomizer, specification: specification)
+        return track
+    }
+
+    /// Generates a track with a given seed
     public static func generate(seed: Int = Int.random(in: 0...0xFFFFFF), specification: TrackSpecification = .default) -> Track {
-        var randomizer = SeededRandomNumberGenerator(seed: seed)
+        var randomizer: RandomNumberGenerator = SeededRandomNumberGenerator(seed: seed)
+        let track = generate(randomizer: &randomizer, specification: specification)
+        return track
+    }
+    
+    /// Generates a track with a give random number generator
+    public static func generate(randomizer: inout RandomNumberGenerator, specification: TrackSpecification = .default) -> Track {
         
         let baseNote = 12 + Int(Float.random(in: 50...(50 + 12 - 1), using: &randomizer))
         let keyType: KeyType = Float.random(in: 0...1, using: &randomizer) < 0.6 ? .naturalMinor : .major

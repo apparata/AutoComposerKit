@@ -32,16 +32,16 @@ let track = Track.generate(
             0, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6
         ]))
 
-let config = Configuration(instruments: [
-    "hihat": MIDIInstrument(preset: .init(bank: msb: 120, lsb: 0), program: 16, note: 42),
-    "kick": MIDIInstrument(preset: .init(bank: msb: 120, lsb: 0), program: 16, note: 36),
-    "snare": MIDIInstrument(preset: .init(bank: msb: 120, lsb: 0), program: 16, note: 38),
+let config = TrackMIDIfier.Configuration(instruments: [
+    "hihat": MIDIInstrument(preset: .init(bank: (msb: 120, lsb: 0), program: 16), note: 42),
+    "kick": MIDIInstrument(preset: .init(bank: (msb: 120, lsb: 0), program: 16), note: 36),
+    "snare": MIDIInstrument(preset: .init(bank: (msb: 120, lsb: 0), program: 16), note: 38),
     "bass": MIDIInstrument(preset: MIDIPreset(bank: (msb: 0, lsb: 0), program: 32)),
-    "piano", MIDIInstrument(preset: MIDIPreset(bank: (msb: 0, lsb: 0), program: 0)),
+    "piano": MIDIInstrument(preset: MIDIPreset(bank: (msb: 0, lsb: 0), program: 0)),
     "guitar": MIDIInstrument(preset: MIDIPreset(bank: (msb: 0, lsb: 0), program: 24))
 ])
 
-let sequence = try TrackMidifier.makeSequence(track, configuration: config)
+let sequence = try TrackMIDIfier.makeSequence(track: track, configuration: config)
 
 try sequence.save(to: "/tmp/test.mid")
 

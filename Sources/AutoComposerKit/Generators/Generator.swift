@@ -13,5 +13,5 @@ public protocol Generator: AnyObject {
         beatLength: Int,
         rootKey: Key,
         keyChord: Key,
-        _ randomizer: inout SeededRandomNumberGenerator)
+        _ randomizer: inout RandomNumberGenerator)
 }

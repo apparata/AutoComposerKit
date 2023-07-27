@@ -14,7 +14,7 @@ class BassGenerator: Generator {
         beatLength: Int,
         rootKey: Key,
         keyChord: Key,
-        _ randomizer: inout SeededRandomNumberGenerator
+        _ randomizer: inout RandomNumberGenerator
     ) {
         precondition(channelCount == channels.count)
         let channel = channels[0]

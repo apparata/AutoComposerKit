@@ -50,7 +50,7 @@ class AmbientGenerator: Generator {
         return 1
     }
     
-    init(_ randomizer: inout SeededRandomNumberGenerator) {
+    init(_ randomizer: inout RandomNumberGenerator) {
         // swiftlint:disable:next force_unwrapping
         let power = [2, 3].randomElement(using: &randomizer)!
         beatRow = Int(pow(2.0, Double(power)))
@@ -64,7 +64,7 @@ class AmbientGenerator: Generator {
         beatLength: Int,
         rootKey: Key,
         keyChord: Key,
-        _ randomizer: inout SeededRandomNumberGenerator
+        _ randomizer: inout RandomNumberGenerator
     ) {
         precondition(channelCount == channels.count)
         let channel = channels[0]
